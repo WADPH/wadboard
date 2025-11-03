@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Wadboard</title>
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.freepik.com/512/6826/6826146.png">
+
+  <style>
+    :root {
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --shadow-card: 0 32px 64px rgba(0,0,0,0.45);
+
+      --green-bg: rgba(16,185,129,0.18);
+      --green-text: #10b981;
+      --green-border: rgba(16,185,129,0.4);
+
+      --red-bg: rgba(239,68,68,0.18);
+      --red-text: #ef4444;
+      --red-border: rgba(239,68,68,0.4);
+
+      --drag-ring: #7c3aed;
+      --drag-bg: rgba(124,58,237,0.1);
+
+      --transition-fast: 0.15s ease;
+    }
+
+    :root[data-theme="dark"] {
+      --bg: #0e0f14;
+      --surface: #171923;
+      --surface-alt: #1f2333;
+      --border: #2b3050;
+
+      --text-main: #ecf0ff;
+      --text-dim: #7b82b4;
+      --text-mid: #aeb6ff;
+
+      --btn-bg: #4247a3;
+      --btn-bg-hover: #5257c7;
+      --danger-bg: #dc2626;
+      --danger-bg-hover: #ef4444;
+
+      --accent-bg: linear-gradient(135deg,#7c3aed 0%,#06b6d4 100%);
+      --accent-text: #ffffff;
+      --chip-shadow: 0 6px 20px rgba(124,58,237,0.25);
+    }
+
+    :root[data-theme="light"] {
+      --bg: #f6f7ff;
+      --surface: #ffffff;
+      --surface-alt: #eef1ff;
+      --border: #d7dbff;
+
+      --text-main: #12122b;
+      --text-dim: #676c93;
+      --text-mid: #333a83;
+
+      --btn-bg: #333a83;
+      --btn-bg-hover: #3f49ad;
+      --danger-bg: #dc2626;
+      --danger-bg-hover: #ef4444;
+
+      --accent-bg: linear-gradient(135deg,#4f46e5 0%,#0ea5e9 100%);
+      --accent-text: #ffffff;
+      --chip-shadow: 0 6px 20px rgba(79,70,229,0.25);
+    }
+
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+    .wrap {
+      width: min(1400px, 96vw);
+      margin: 0 auto;
+      padding: 2rem 0 3rem;
+      flex: 1 0 auto;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .brand-row { display: flex; align-items: center; gap: .9rem; flex-wrap: wrap; }
+
+    .brand-mark {
+      background-image: var(--accent-bg);
+      color: var(--accent-text);
+      font-weight: 700;
+      font-size: .8rem;
+      line-height: 1.2;
+      border-radius: var(--radius-xl);
+      padding: .5rem .75rem;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.35);
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 1.55rem;
+      letter-spacing: -0.02em;
+    }
+
+    .title p {
+      margin: .25rem 0 0;
+      font-size: .8rem;
+      color: var(--text-dim);
+    }
+
+    .badge {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: .6rem .8rem;
+      font-size: .7rem;
+      color: var(--text-dim);
+      box-shadow: var(--shadow-card);
+    }
+    .badge b { color: var(--text-mid); }
+
+    .toolbar { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .icon-btn {
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      border-radius: var(--radius-xl);
+      padding: .6rem .9rem;
+      font-weight: 700;
+      font-size: .75rem;
+      box-shadow: var(--shadow-card);
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+    .icon-btn:hover { border-color: var(--drag-ring); }
+
+    .section { margin-top: 2rem; }
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .9rem;
+    }
+    .section-head h2 { margin: 0; font-size: 1.1rem; }
+    .section-count { font-size: .7rem; color: var(--text-dim); }
+
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+    @media(min-width: 780px){
+      .grid {
+        grid-template-columns: repeat(2,1fr);
+      }
+    }
+    @media(min-width: 780px){
+      .full-span {
+        grid-column: span 2;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-2xl);
+      padding: 1rem;
+      box-shadow: var(--shadow-card);
+      display: flex; flex-direction: column; gap: .9rem;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+      min-width: 0;
+    }
+
+    .card[draggable="true"] { cursor: grab; }
+    .card.drag-over { border-color: var(--drag-ring); background: var(--drag-bg); }
+
+    .svc-top { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
+    .svc-name { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-weight: 700; }
+
+    .chip-up, .chip-down {
+      display: inline-flex; align-items: center;
+      font-size: .65rem; font-weight: 800; padding: .25rem .5rem;
+      border-radius: 999px; border: 1px solid transparent; box-shadow: var(--chip-shadow);
+    }
+    .chip-up {
+      background: var(--green-bg); color: var(--green-text); border-color: var(--green-border);
+    }
+    .chip-down {
+      background: var(--red-bg); color: var(--red-text); border-color: var(--red-border);
+    }
+
+    .svc-url { color: var(--text-dim); font-size: .78rem; word-break: break-all; }
+    .svc-notes {
+      color: var(--text-mid);
+      font-size: .78rem;
+      word-break: break-word;
+      white-space: pre-line;
+    }
+
+    .btn-row { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .btn {
+      cursor: pointer; background: var(--btn-bg); color: #fff; border: 0;
+      border-radius: var(--radius-xl); padding: .48rem .75rem; font-weight: 700; font-size: .72rem;
+      transition: background var(--transition-fast);
+      text-decoration: none; display: inline-flex; align-items: center; gap: .35rem;
+    }
+    .btn:hover { background: var(--btn-bg-hover); }
+    .btn-danger { background: var(--danger-bg); }
+    .btn-danger:hover { background: var(--danger-bg-hover); }
+
+    .meta { display: flex; justify-content: space-between; align-items: flex-start; gap: .9rem; flex-wrap: wrap; }
+    .meta .group { font-size: .78rem; color: var(--text-dim); }
+    .meta .group b { color: var(--text-mid); display: block; margin-bottom: .2rem; }
+
+    .link-row { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
+    .link-left { display: flex; gap: .75rem; align-items: flex-start; min-width: 0; }
+    .link-icon { font-size: 1.55rem; line-height: 1; }
+    .link-title { font-weight: 800; margin: 0 0 .25rem; }
+    .link-url { font-size: .78rem; color: var(--text-dim); word-break: break-all; }
+    .link-notes {
+      font-size: .78rem;
+      color: var(--text-mid);
+      word-break: break-word;
+      white-space: pre-line;
+    }
+
+    .wol-row { display: flex; justify-content: space-between; gap: .75rem; align-items: flex-start; }
+    .wol-left { display: flex; flex-direction: column; gap: .4rem; min-width:0; }
+    .wol-title { font-weight: 800; margin: 0; }
+    .wol-notes {
+      font-size: .78rem;
+      color: var(--text-mid);
+      word-break: break-word;
+      white-space: pre-line;
+    }
+    .wol-meta {
+      font-size: .72rem;
+      color: var(--text-dim);
+      word-break: break-word;
+      white-space: pre-line;
+    }
+    .wol-chip {
+      display:inline-block;
+      font-size:.65rem;
+      font-weight:700;
+      padding:.25rem .5rem;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:var(--surface-alt);
+      color:var(--text-mid);
+    }
+
+    .hidden { display: none !important; }
+
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .modal {
+      width: min(92vw, 520px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-card);
+      padding: 1rem 1.25rem 1.25rem;
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .modal-top { display: flex; justify-content: space-between; gap: .75rem; align-items: center; }
+    .tabs { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .tab {
+      cursor: pointer; background-image: var(--accent-bg); color: var(--accent-text);
+      border: 0; border-radius: var(--radius-xl); padding: .5rem .75rem; font-weight: 800; font-size: .72rem;
+      box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+    }
+    .close {
+      cursor: pointer; background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: .5rem .75rem; font-weight: 800; font-size: .72rem;
+    }
+
+    .form {
+      background: var(--surface-alt); border: 1px solid var(--border);
+      border-radius: var(--radius-xl); padding: 1rem;
+    }
+    .form h3 { margin: 0 0 .75rem; }
+    .field { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .75rem; }
+    .label { font-size: .75rem; color: var(--text-mid); font-weight: 700; }
+    .input, .textarea, select.input {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text-main);
+      border-radius: var(--radius-xl); padding: .6rem .75rem; font-size: .85rem; outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .textarea { min-height: 84px; resize: vertical; }
+    .input:focus, .textarea:focus, select.input:focus {
+      border-color: var(--drag-ring); box-shadow: 0 0 0 2px rgba(124,58,237,0.25);
+    }
+    .submit { width: 100%; }
+
+    .footer {
+      width: 100%;
+      margin-top: auto;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .footer .inner {
+      width: min(1400px, 96vw);
+      margin: 0 auto; padding: .9rem 0;
+      font-size: .72rem; text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="wrap">
+    <header class="header">
+      <div class="brand-row">
+        <div class="brand-mark">WAD</div>
+        <div class="title">
+          <h1>Dashboard</h1>
+          <p>Internal Services And Status</p>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:.6rem; flex-wrap:wrap; align-items:flex-start;">
+        <div class="badge"><b>Auto-refresh</b> Every 10s</div>
+        <div class="toolbar">
+          <button class="icon-btn" id="theme-toggle">Theme</button>
+          <button class="icon-btn" id="admin-toggle">Settings</button>
+          <button class="icon-btn hidden" id="open-modal">Add</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Services</h2>
+        <div class="section-count" id="svc-count">0 total</div>
+      </div>
+      <div class="grid" id="svc-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Quick Links</h2>
+        <div class="section-count" id="lnk-count">0 total</div>
+      </div>
+      <div class="grid" id="lnk-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>WOL</h2>
+        <div class="section-count" id="wol-count">0 total</div>
+      </div>
+      <div class="grid" id="wol-grid"></div>
+    </section>
+
+  </div>
+
+  <footer class="footer">
+    <div class="inner">— WAD —<br>Dashboard</div>
+  </footer>
+</div>
+
+<!-- Add/Edit modal -->
+<div class="overlay hidden" id="overlay">
+  <div class="modal">
+    <div class="modal-top">
+      <div class="tabs">
+        <button class="tab" id="tab-service">Service</button>
+        <button class="tab" id="tab-link">Link</button>
+        <button class="tab" id="tab-wol">WOL</button>
+      </div>
+      <button class="close" id="modal-close">Close</button>
+    </div>
+
+    <!-- SERVICE FORM -->
+    <form class="form" id="form-service">
+      <h3 id="svc-form-title">Add Service</h3>
+
+      <div class="field">
+        <label class="label">Service Name</label>
+        <input class="input" id="svc-name" placeholder="Server" required />
+      </div>
+
+      <div class="field">
+        <label class="label">Open URL (UI URL)</label>
+        <input class="input" id="svc-open" type="url" placeholder="http://service.local" required />
+      </div>
+
+      <div class="field">
+        <label class="label">Status Check Method</label>
+        <select class="input" id="svc-method">
+          <option value="http">HTTP(S) request</option>
+          <option value="ping">Ping host/IP</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label class="label" id="svc-check-label">Check URL (health probe)</label>
+        <input class="input" id="svc-check" placeholder="http://service.local" required />
+      </div>
+
+      <div class="field">
+        <label class="label">Notes</label>
+        <textarea class="textarea" id="svc-notes" placeholder="Short notes"></textarea>
+      </div>
+
+      <button class="btn submit" type="submit" id="svc-submit">Create Service</button>
+    </form>
+
+    <!-- LINK FORM -->
+    <form class="form hidden" id="form-link">
+      <h3 id="lnk-form-title">Add Link</h3>
+      <div class="field">
+        <label class="label">Title</label>
+        <input class="input" id="lnk-title" placeholder="Service" required />
+      </div>
+      <div class="field">
+        <label class="label">URL</label>
+        <input class="input" id="lnk-url" type="url" placeholder="http://service.local" required />
+      </div>
+      <div class="field">
+        <label class="label">Icon (emoji or short text)</label>
+        <input class="input" id="lnk-icon" placeholder="🎫" />
+      </div>
+      <div class="field">
+        <label class="label">Notes</label>
+        <textarea class="textarea" id="lnk-notes" placeholder="Short notes"></textarea>
+      </div>
+      <button class="btn submit" type="submit" id="lnk-submit">Create Link</button>
+    </form>
+
+    <!-- WOL FORM -->
+    <form class="form hidden" id="form-wol">
+      <h3 id="wol-form-title">Add WOL</h3>
+      <div class="field">
+        <label class="label">Name</label>
+        <input class="input" id="wol-name" placeholder="Wake SERVER" required />
+      </div>
+      <div class="field">
+        <label class="label">Router Host/IP</label>
+        <input class="input" id="wol-host" placeholder="192.168.101.1" required />
+      </div>
+      <div class="field">
+        <label class="label">Router User</label>
+        <input class="input" id="wol-user" placeholder="admin" required />
+      </div>
+      <div class="field">
+        <label class="label">Router Password</label>
+        <input class="input" id="wol-pass" type="password" placeholder="********" required />
+      </div>
+      <div class="field">
+        <label class="label">MikroTik Script ID</label>
+        <input class="input" id="wol-script" placeholder="1" required />
+      </div>
+      <div class="field">
+        <label class="label">Notes</label>
+        <textarea class="textarea" id="wol-notes" placeholder="What this does"></textarea>
+      </div>
+      <button class="btn submit" type="submit" id="wol-submit">Create WOL</button>
+    </form>
+  </div>
+</div>
+
+<!-- Admin password modal (login/logout control) -->
+<div class="overlay hidden" id="admin-overlay">
+  <div class="modal">
+    <div class="modal-top">
+      <div style="font-weight:800; font-size:.9rem; color:var(--text-main);">
+        Admin login
+      </div>
+      <button class="close" id="admin-close">Close</button>
+    </div>
+
+    <form class="form" id="admin-form">
+      <div class="field">
+        <label class="label">Password</label>
+        <input class="input" id="admin-pass" type="password" placeholder="********" required />
+      </div>
+      <button class="btn submit" type="submit" id="admin-submit">Unlock</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // ==============================
+  // CONFIG
+  // ==============================
+  // API base behind nginx reverse proxy
+  const API_BASE = "/api";
+
+  // Theme key for localStorage
+  const THEME_KEY = "wadphTheme";
+
+  // editMode:
+  // false -> read-only UI
+  // true  -> admin UI (Add/Edit/Delete/Drag/Run WOL)
+  let editMode = false;
+
+  // dashboard state from backend
+  // (backend returns sanitized version if not admin)
+  let state = { services: [], links: [], wol: [] };
+
+  // modal mode for Add/Edit forms
+  // { type:"service"|"link"|"wol", action:"create"|"edit", id:string|null }
+  let mode = { type: "service", action: "create", id: null };
+
+  // ==============================
+  // DOM refs
+  // ==============================
+  const overlay = document.getElementById("overlay");
+  const openBtn = document.getElementById("open-modal");
+  const closeBtn = document.getElementById("modal-close");
+
+  const tabSvcBtn = document.getElementById("tab-service");
+  const tabLnkBtn = document.getElementById("tab-link");
+  const tabWolBtn = document.getElementById("tab-wol");
+
+  const formSvc = document.getElementById("form-service");
+  const formLnk = document.getElementById("form-link");
+  const formWol = document.getElementById("form-wol");
+
+  const svcTitleEl = document.getElementById("svc-form-title");
+  const svcSubmitEl = document.getElementById("svc-submit");
+  const lnkTitleEl = document.getElementById("lnk-form-title");
+  const lnkSubmitEl = document.getElementById("lnk-submit");
+  const wolTitleEl = document.getElementById("wol-form-title");
+  const wolSubmitEl = document.getElementById("wol-submit");
+
+  const svcGrid = document.getElementById("svc-grid");
+  const lnkGrid = document.getElementById("lnk-grid");
+  const wolGrid = document.getElementById("wol-grid");
+
+  const svcCount = document.getElementById("svc-count");
+  const lnkCount = document.getElementById("lnk-count");
+  const wolCount = document.getElementById("wol-count");
+
+  // admin login/logout UI
+  const adminToggleBtn = document.getElementById("admin-toggle");
+  const adminOverlay   = document.getElementById("admin-overlay");
+  const adminCloseBtn  = document.getElementById("admin-close");
+  const adminForm      = document.getElementById("admin-form");
+  const adminPassInput = document.getElementById("admin-pass");
+
+  // service form refs
+  const svcMethodEl      = document.getElementById("svc-method");
+  const svcCheckLabelEl  = document.getElementById("svc-check-label");
+  const svcCheckInputEl  = document.getElementById("svc-check");
+
+  // ==============================
+  // THEME
+  // ==============================
+  function loadTheme() {
+    const t = localStorage.getItem(THEME_KEY);
+    return t === "light" || t === "dark" ? t : "dark";
+  }
+  function applyTheme(t) {
+    document.documentElement.setAttribute("data-theme", t);
+    localStorage.setItem(THEME_KEY, t);
+  }
+  applyTheme(loadTheme());
+
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    const nextTheme =
+      (document.documentElement.getAttribute("data-theme") === "dark")
+      ? "light"
+      : "dark";
+    applyTheme(nextTheme);
+  });
+
+  // ==============================
+  // UTIL
+  // ==============================
+
+  // Format ISO timestamp -> "YYYY-MM-DD HH:MM:SS"
+  function fmt(ts) {
+    if (!ts) return "never";
+    const d = new Date(ts);
+    const pad = n => String(n).padStart(2, "0");
+    return (
+      d.getFullYear() + "-" +
+      pad(d.getMonth() + 1) + "-" +
+      pad(d.getDate()) + " " +
+      pad(d.getHours()) + ":" +
+      pad(d.getMinutes()) + ":" +
+      pad(d.getSeconds())
+    );
+  }
+
+  // Helper: send GET with cookies
+  async function apiGET(path) {
+    const res = await fetch(API_BASE + path, {
+      credentials: "include"
+    });
+    return res.json();
+  }
+
+  // Helper: send JSON with cookies
+  async function apiJSON(method, path, bodyObj) {
+    const res = await fetch(API_BASE + path, {
+      method,
+      credentials: "include",              // send session cookie
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bodyObj)
+    });
+    if (res.status === 401) {
+      // session expired -> force logout mode
+      forceLogoutUI();
+      return {};
+    }
+    return res.json().catch(() => ({}));
+  }
+
+  // Helper: DELETE with cookies
+  async function apiDELETE(path) {
+    const res = await fetch(API_BASE + path, {
+      method: "DELETE",
+      credentials: "include"
+    });
+    if (res.status === 401) {
+      forceLogoutUI();
+      return {};
+    }
+    return res.json().catch(() => ({}));
+  }
+
+  // POST with no body (WOL run etc)
+  async function apiPOSTNoBody(path) {
+    const res = await fetch(API_BASE + path, {
+      method: "POST",
+      credentials: "include"
+    });
+    if (res.status === 401) {
+      forceLogoutUI();
+      return {};
+    }
+    return res.json().catch(() => ({}));
+  }
+
+  // ==============================
+  // LOGIN / LOGOUT FLOW
+  // ==============================
+
+  // Show login modal if locked
+  adminToggleBtn.addEventListener("click", async () => {
+    if (!editMode) {
+      // locked -> ask for password
+      adminPassInput.value = "";
+      adminOverlay.classList.remove("hidden");
+      adminPassInput.focus();
+    } else {
+      // already unlocked -> do logout
+      await logoutRequest();
+      forceLogoutUI();
+    }
+  });
+
+  // Close login modal button
+  adminCloseBtn.addEventListener("click", () => {
+    adminOverlay.classList.add("hidden");
+  });
+
+  // Submit password for login
+  adminForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    const pw = adminPassInput.value;
+
+    // call /api/login {password}
+    const res = await fetch(API_BASE + "/login", {
+      method: "POST",
+      credentials: "include", // we want cookie back
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: pw })
+    });
+
+    if (res.status === 200) {
+      // success -> turn on editMode
+      editMode = true;
+      openBtn.classList.remove("hidden");
+      adminOverlay.classList.add("hidden");
+
+      // reload state with full sensitive data
+      await loadStateFromServer();
+      render();
+    } else {
+      // wrong password
+      adminPassInput.value = "";
+      adminPassInput.focus();
+    }
+  });
+
+  async function logoutRequest() {
+    // ask backend to drop session
+    await fetch(API_BASE + "/logout", {
+      method: "POST",
+      credentials: "include"
+    });
+  }
+
+  function forceLogoutUI() {
+    // turn off local admin mode
+    editMode = false;
+    openBtn.classList.add("hidden");
+    render();
+  }
+
+  // ==============================
+  // SERVER SYNC
+  // ==============================
+  async function loadStateFromServer() {
+    // GET /api/state always works
+    const data = await apiGET("/state");
+    state = data;
+    render();
+  }
+
+  async function persistOrderServices() {
+    const order = state.services.map(s => s.id);
+    await apiJSON("PUT", "/reorder/services", { order });
+  }
+
+  async function persistOrderLinks() {
+    const order = state.links.map(l => l.id);
+    await apiJSON("PUT", "/reorder/links", { order });
+  }
+
+  async function persistOrderWOL() {
+    const order = state.wol.map(w => w.id);
+    await apiJSON("PUT", "/reorder/wol", { order });
+  }
+
+  // ==============================
+  // MODAL / FORMS
+  // ==============================
+
+  // Update label/placeholder for service check field depending on method
+  function updateSvcCheckLabel() {
+    if (svcMethodEl.value === "ping") {
+      svcCheckLabelEl.textContent = "Host/IP to ping";
+      svcCheckInputEl.placeholder = "192.168.100.10";
+    } else {
+      svcCheckLabelEl.textContent = "Check URL (health probe)";
+      svcCheckInputEl.placeholder = "http://service.local";
+    }
+  }
+  svcMethodEl.addEventListener("change", updateSvcCheckLabel);
+
+  function resetServiceForm() {
+    document.getElementById("svc-name").value     = "";
+    document.getElementById("svc-open").value     = "";
+    svcMethodEl.value                             = "http";
+    document.getElementById("svc-check").value    = "";
+    document.getElementById("svc-notes").value    = "";
+    updateSvcCheckLabel();
+  }
+
+  function resetLinkForm() {
+    document.getElementById("lnk-title").value = "";
+    document.getElementById("lnk-url").value   = "";
+    document.getElementById("lnk-icon").value  = "";
+    document.getElementById("lnk-notes").value = "";
+  }
+
+  function resetWolForm() {
+    document.getElementById("wol-name").value   = "";
+    document.getElementById("wol-host").value   = "";
+    document.getElementById("wol-user").value   = "";
+    document.getElementById("wol-pass").value   = "";
+    document.getElementById("wol-script").value = "";
+    document.getElementById("wol-notes").value  = "";
+  }
+
+  function updateFormTitles() {
+    if (mode.type === "service") {
+      if (mode.action === "create") {
+        svcTitleEl.textContent  = "Add Service";
+        svcSubmitEl.textContent = "Create Service";
+      } else {
+        svcTitleEl.textContent  = "Edit Service";
+        svcSubmitEl.textContent = "Save Changes";
+      }
+    } else if (mode.type === "link") {
+      if (mode.action === "create") {
+        lnkTitleEl.textContent  = "Add Link";
+        lnkSubmitEl.textContent = "Create Link";
+      } else {
+        lnkTitleEl.textContent  = "Edit Link";
+        lnkSubmitEl.textContent = "Save Changes";
+      }
+    } else {
+      if (mode.action === "create") {
+        wolTitleEl.textContent  = "Add WOL";
+        wolSubmitEl.textContent = "Create WOL";
+      } else {
+        wolTitleEl.textContent  = "Edit WOL";
+        wolSubmitEl.textContent = "Save Changes";
+      }
+    }
+  }
+
+  function showOnlyForm(which) {
+    formSvc.classList.add("hidden");
+    formLnk.classList.add("hidden");
+    formWol.classList.add("hidden");
+
+    if (which === "service") formSvc.classList.remove("hidden");
+    if (which === "link")    formLnk.classList.remove("hidden");
+    if (which === "wol")     formWol.classList.remove("hidden");
+  }
+
+  function showModal(whichType, editId = null) {
+    // Only allow if admin (editMode true)
+    if (!editMode) return;
+
+    mode.type   = whichType;
+    mode.id     = editId;
+    mode.action = editId ? "edit" : "create";
+
+    overlay.classList.remove("hidden");
+
+    if (whichType === "service") {
+      showOnlyForm("service");
+      if (mode.action === "edit") {
+        const svc = state.services.find(s => s.id === mode.id);
+        if (svc) {
+          document.getElementById("svc-name").value     = svc.name || "";
+          document.getElementById("svc-open").value     = svc.openUrl || "";
+          svcMethodEl.value                             = svc.method || "http";
+          document.getElementById("svc-check").value    = svc.checkUrl || "";
+          document.getElementById("svc-notes").value    = svc.notes || "";
+          updateSvcCheckLabel();
+        }
+      } else {
+        resetServiceForm();
+      }
+    } else if (whichType === "link") {
+      showOnlyForm("link");
+      if (mode.action === "edit") {
+        const lnk = state.links.find(l => l.id === mode.id);
+        if (lnk) {
+          document.getElementById("lnk-title").value = lnk.title || "";
+          document.getElementById("lnk-url").value   = lnk.url   || "";
+          document.getElementById("lnk-icon").value  = lnk.icon  || "";
+          document.getElementById("lnk-notes").value = lnk.notes || "";
+        }
+      } else {
+        resetLinkForm();
+      }
+    } else {
+      showOnlyForm("wol");
+      if (mode.action === "edit") {
+        const task = state.wol.find(w => w.id === mode.id);
+        if (task) {
+          document.getElementById("wol-name").value   = task.name     || "";
+          document.getElementById("wol-host").value   = task.host     || "";
+          document.getElementById("wol-user").value   = task.user     || "";
+          document.getElementById("wol-pass").value   = task.pass     || "";
+          document.getElementById("wol-script").value = task.scriptId || "";
+          document.getElementById("wol-notes").value  = task.notes    || "";
+        }
+      } else {
+        resetWolForm();
+      }
+    }
+
+    updateFormTitles();
+  }
+
+  function hideModal() {
+    overlay.classList.add("hidden");
+  }
+
+  openBtn.addEventListener("click", () => showModal("service"));
+  closeBtn.addEventListener("click", hideModal);
+
+  tabSvcBtn.addEventListener("click", () => showModal("service", mode.action === "edit" ? mode.id : null));
+  tabLnkBtn.addEventListener("click", () => showModal("link",    mode.action === "edit" ? mode.id : null));
+  tabWolBtn.addEventListener("click", () => showModal("wol",     mode.action === "edit" ? mode.id : null));
+
+  // ==============================
+  // FORM SUBMIT HANDLERS (CRUD)
+  // ==============================
+  formSvc.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!editMode) return;
+
+    const body = {
+      name:     document.getElementById("svc-name").value.trim(),
+      openUrl:  document.getElementById("svc-open").value.trim(),
+      method:   svcMethodEl.value,
+      checkUrl: document.getElementById("svc-check").value.trim(),
+      notes:    document.getElementById("svc-notes").value.trim()
+    };
+    if (!body.name || !body.openUrl || !body.checkUrl) return;
+
+    if (mode.action === "edit" && mode.id) {
+      await apiJSON("PUT", "/service/" + mode.id, body);
+    } else {
+      await apiJSON("POST", "/service", body);
+    }
+
+    hideModal();
+    await loadStateFromServer();
+  });
+
+  formLnk.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!editMode) return;
+
+    const body = {
+      title: document.getElementById("lnk-title").value.trim(),
+      url:   document.getElementById("lnk-url").value.trim(),
+      icon:  document.getElementById("lnk-icon").value.trim(),
+      notes: document.getElementById("lnk-notes").value.trim()
+    };
+    if (!body.title || !body.url) return;
+
+    if (mode.action === "edit" && mode.id) {
+      await apiJSON("PUT", "/link/" + mode.id, body);
+    } else {
+      await apiJSON("POST", "/link", body);
+    }
+
+    hideModal();
+    await loadStateFromServer();
+  });
+
+  formWol.addEventListener("submit", async e => {
+    e.preventDefault();
+    if (!editMode) return;
+
+    const body = {
+      name:     document.getElementById("wol-name").value.trim(),
+      host:     document.getElementById("wol-host").value.trim(),
+      user:     document.getElementById("wol-user").value.trim(),
+      pass:     document.getElementById("wol-pass").value.trim(),
+      scriptId: document.getElementById("wol-script").value.trim(),
+      notes:    document.getElementById("wol-notes").value.trim()
+    };
+    if (!body.name || !body.host || !body.user || !body.pass || !body.scriptId) return;
+
+    if (mode.action === "edit" && mode.id) {
+      await apiJSON("PUT", "/wol/" + mode.id, body);
+    } else {
+      await apiJSON("POST", "/wol", body);
+    }
+
+    hideModal();
+    await loadStateFromServer();
+  });
+
+  // ==============================
+  // DELETE HANDLERS
+  // ==============================
+  async function deleteService(id) {
+    if (!editMode) return;
+    await apiDELETE("/service/" + id);
+    await loadStateFromServer();
+  }
+  async function deleteLink(id) {
+    if (!editMode) return;
+    await apiDELETE("/link/" + id);
+    await loadStateFromServer();
+  }
+  async function deleteWol(id) {
+    if (!editMode) return;
+    await apiDELETE("/wol/" + id);
+    await loadStateFromServer();
+  }
+
+  // ==============================
+  // WOL RUN
+  // ==============================
+  async function runWol(id) {
+    if (!editMode) return;
+    const resp = await apiPOSTNoBody("/wol/" + id + "/run");
+    if (resp && resp.ok) {
+      alert("Executed");
+    } else {
+      alert("Error: " + (resp && resp.result ? resp.result : "unknown"));
+    }
+    await loadStateFromServer();
+  }
+
+  // ==============================
+  // DRAG & DROP (reorder)
+  // ==============================
+  let dragSvcIdx = null;
+  let dragLnkIdx = null;
+  let dragWolIdx = null;
+
+  function bindDrag(containerId, type, arr, persistFn) {
+    const cont  = document.getElementById(containerId);
+    const cards = Array.from(cont.querySelectorAll(`.card[data-type='${type}']`));
+
+    cards.forEach((card, idx) => {
+      // enable drag only in editMode
+      if (editMode) {
+        card.setAttribute("draggable", "true");
+      } else {
+        card.removeAttribute("draggable");
+      }
+
+      card.dataset.index = idx;
+
+      card.addEventListener("dragstart", e => {
+        if (!editMode) return;
+        if (type === "service")      dragSvcIdx = idx;
+        else if (type === "link")    dragLnkIdx = idx;
+        else                         dragWolIdx = idx;
+        e.dataTransfer.effectAllowed = "move";
+      });
+
+      card.addEventListener("dragover", e => {
+        if (!editMode) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        card.classList.add("drag-over");
+      });
+
+      card.addEventListener("dragleave", () => {
+        card.classList.remove("drag-over");
+      });
+
+      card.addEventListener("drop", async e => {
+        if (!editMode) return;
+        e.preventDefault();
+        card.classList.remove("drag-over");
+
+        const from = (type === "service") ? dragSvcIdx
+                    : (type === "link")   ? dragLnkIdx
+                    : dragWolIdx;
+        const to = Number(card.dataset.index);
+
+        if (Number.isInteger(from) && from !== to) {
+          const moved = arr.splice(from, 1)[0];
+          arr.splice(to, 0, moved);
+
+          await persistFn();
+          await loadStateFromServer();
+        }
+
+        if (type === "service")      dragSvcIdx = null;
+        else if (type === "link")    dragLnkIdx = null;
+        else                         dragWolIdx = null;
+      });
+    });
+  }
+
+  // ==============================
+  // RENDER
+  // ==============================
+  function render() {
+    svcCount.textContent = state.services.length + " total";
+    lnkCount.textContent = state.links.length + " total";
+    wolCount.textContent = state.wol.length + " total";
+
+    // services grid
+    svcGrid.innerHTML = state.services.length
+      ? ""
+      : `<div style="color:var(--text-dim); font-size:.85rem;">No services yet</div>`;
+
+    state.services.forEach(s => {
+      const card = renderServiceCard(s);
+      svcGrid.appendChild(card);
+    });
+    if (state.services.length % 2 === 1 && state.services.length > 0) {
+      const lastCard = svcGrid.lastElementChild;
+      if (lastCard) lastCard.classList.add("full-span");
+    }
+
+    // links grid
+    lnkGrid.innerHTML = state.links.length
+      ? ""
+      : `<div style="color:var(--text-dim); font-size:.85rem;">No links yet</div>`;
+
+    state.links.forEach(l => {
+      const card = renderLinkCard(l);
+      lnkGrid.appendChild(card);
+    });
+    if (state.links.length % 2 === 1 && state.links.length > 0) {
+      const lastCard = lnkGrid.lastElementChild;
+      if (lastCard) lastCard.classList.add("full-span");
+    }
+
+    // wol grid
+    wolGrid.innerHTML = state.wol.length
+      ? ""
+      : `<div style="color:var(--text-dim); font-size:.85rem;">No WOL yet</div>`;
+
+    state.wol.forEach(w => {
+      const card = renderWolCard(w);
+      wolGrid.appendChild(card);
+    });
+    if (state.wol.length % 2 === 1 && state.wol.length > 0) {
+      const lastCard = wolGrid.lastElementChild;
+      if (lastCard) lastCard.classList.add("full-span");
+    }
+
+    // bind drag for each
+    bindDrag("svc-grid", "service", state.services, persistOrderServices);
+    bindDrag("lnk-grid", "link", state.links, persistOrderLinks);
+    bindDrag("wol-grid", "wol", state.wol, persistOrderWOL);
+  }
+
+  // Render one Service card
+  function renderServiceCard(s) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.type = "service";
+
+    const top = document.createElement("div");
+    top.className = "svc-top";
+
+    const left = document.createElement("div");
+
+    const nameWrap = document.createElement("div");
+    nameWrap.className = "svc-name";
+
+    const spanName = document.createElement("span");
+    spanName.textContent = s.name;
+
+    const spanChip = document.createElement("span");
+    spanChip.className = (s.lastStatus === "UP") ? "chip-up" : "chip-down";
+    spanChip.textContent = s.lastStatus || "unknown";
+
+    nameWrap.appendChild(spanName);
+    nameWrap.appendChild(spanChip);
+
+    const urlEl = document.createElement("div");
+    urlEl.className = "svc-url";
+    urlEl.textContent = s.openUrl;
+
+    left.appendChild(nameWrap);
+    left.appendChild(urlEl);
+
+    if (s.notes) {
+      const notesEl = document.createElement("div");
+      notesEl.className = "svc-notes";
+      notesEl.textContent = s.notes;
+      left.appendChild(notesEl);
+    }
+
+    const right = document.createElement("div");
+    right.className = "btn-row";
+
+    // Open is always visible
+    const openBtn = document.createElement("a");
+    openBtn.className = "btn";
+    openBtn.textContent = "Open";
+    openBtn.href = s.openUrl;
+    openBtn.target = "_blank";
+    openBtn.rel = "noopener";
+    right.appendChild(openBtn);
+
+    // Edit/Delete only in admin mode
+    if (editMode) {
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn";
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => showModal("service", s.id);
+      right.appendChild(editBtn);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => deleteService(s.id);
+      right.appendChild(delBtn);
+    }
+
+    top.appendChild(left);
+    top.appendChild(right);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+
+    const g1 = document.createElement("div");
+    g1.className = "group";
+    g1.innerHTML = `<b>Last check</b>${fmt(s.lastChecked)}`;
+
+    meta.appendChild(g1);
+
+    card.appendChild(top);
+    card.appendChild(meta);
+
+    return card;
+  }
+
+  // Render one Link card
+  function renderLinkCard(l) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.type = "link";
+
+    const row = document.createElement("div");
+    row.className = "link-row";
+
+    const left = document.createElement("div");
+    left.className = "link-left";
+
+    const iconEl = document.createElement("div");
+    iconEl.className = "link-icon";
+    iconEl.textContent = l.icon || "🔗";
+
+    const txtWrap = document.createElement("div");
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "link-title";
+    titleEl.textContent = l.title;
+
+    const urlEl = document.createElement("div");
+    urlEl.className = "link-url";
+    urlEl.textContent = l.url;
+
+    txtWrap.appendChild(titleEl);
+    txtWrap.appendChild(urlEl);
+
+    if (l.notes) {
+      const notesEl = document.createElement("div");
+      notesEl.className = "link-notes";
+      notesEl.textContent = l.notes;
+      txtWrap.appendChild(notesEl);
+    }
+
+    left.appendChild(iconEl);
+    left.appendChild(txtWrap);
+
+    const right = document.createElement("div");
+    right.className = "btn-row";
+
+    const openBtn = document.createElement("a");
+    openBtn.className = "btn";
+    openBtn.textContent = "Open";
+    openBtn.href = l.url;
+    openBtn.target = "_blank";
+    openBtn.rel = "noopener";
+    right.appendChild(openBtn);
+
+    if (editMode) {
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn";
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => showModal("link", l.id);
+      right.appendChild(editBtn);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => deleteLink(l.id);
+      right.appendChild(delBtn);
+    }
+
+    row.appendChild(left);
+    row.appendChild(right);
+
+    card.appendChild(row);
+    return card;
+  }
+
+  // Render one WOL card
+  function renderWolCard(w) {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.type = "wol";
+
+    const row = document.createElement("div");
+    row.className = "wol-row";
+
+    const left = document.createElement("div");
+    left.className = "wol-left";
+
+    const titleEl = document.createElement("div");
+    titleEl.className = "wol-title";
+    titleEl.textContent = w.name;
+
+    if (w.notes) {
+      const notesEl = document.createElement("div");
+      notesEl.className = "wol-notes";
+      notesEl.textContent = w.notes;
+      left.appendChild(notesEl);
+    }
+
+    const metaEl = document.createElement("div");
+    metaEl.className = "wol-meta";
+    const chip = `<span class="wol-chip">${w.lastResult || "never"}</span>`;
+    metaEl.innerHTML = chip + "  Last run: " + fmt(w.lastRun);
+
+    left.appendChild(titleEl);
+    left.appendChild(metaEl);
+
+    const right = document.createElement("div");
+    right.className = "btn-row";
+
+    // Buttons only visible in admin mode now (Run/Edit/Delete)
+    if (editMode) {
+      const runBtn = document.createElement("button");
+      runBtn.className = "btn";
+      runBtn.textContent = "Run";
+      runBtn.onclick = () => runWol(w.id);
+      right.appendChild(runBtn);
+
+      const editBtn = document.createElement("button");
+      editBtn.className = "btn";
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => showModal("wol", w.id);
+      right.appendChild(editBtn);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "btn btn-danger";
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => deleteWol(w.id);
+      right.appendChild(delBtn);
+    }
+
+    row.appendChild(left);
+    row.appendChild(right);
+
+    card.appendChild(row);
+    return card;
+  }
+
+  // ==============================
+  // AUTO REFRESH
+  // ==============================
+  async function refreshLoop() {
+    await loadStateFromServer();
+  }
+
+  // ==============================
+  // INIT
+  // ==============================
+  (async function init() {
+    // hide Add until admin unlock
+    openBtn.classList.add("hidden");
+
+    // first load
+    await loadStateFromServer();
+
+    // periodic refresh of dashboard data
+    setInterval(refreshLoop, 10000);
+  })();
+</script>
+</body>
+</html>

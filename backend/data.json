@@ -1,0 +1,129 @@
+{
+  "services": [
+    {
+      "id": "svc-1",
+      "name": "WireGuard VPN",
+      "openUrl": "https://vpn.wadph.top",
+      "checkUrl": "https://vpn.wadph.top",
+      "notes": "—\nIP: 151.145.84.149\nPort: 51821",
+      "lastStatus": "UP",
+      "lastChecked": "2025-11-03T10:23:19.854Z",
+      "method": "http"
+    },
+    {
+      "id": "svc-1761590630796",
+      "name": "WoL Control Panel",
+      "openUrl": "https://wol.wadph.top",
+      "checkUrl": "https://wol.wadph.top",
+      "notes": "—\nIP: 192.168.101.2",
+      "lastStatus": "UP",
+      "lastChecked": "2025-11-03T10:23:20.721Z",
+      "method": "http"
+    },
+    {
+      "id": "svc-1761590396626",
+      "name": "ProxmoxVE",
+      "openUrl": "https://pve.wadph.top",
+      "checkUrl": "https://pve.wadph.top",
+      "notes": "—\nIP: 192.168.100.10\nPort: 8006",
+      "lastStatus": "DOWN",
+      "lastChecked": "2025-11-03T10:23:21.324Z",
+      "method": "http"
+    },
+    {
+      "id": "svc-1761590440981",
+      "name": "Proxmox File Browser",
+      "openUrl": "https://pvebrowser.wadph.top",
+      "checkUrl": "https://pvebrowser.wadph.top",
+      "notes": "—\nIP: 192.168.100.10\nPort: 8007",
+      "lastStatus": "DOWN",
+      "lastChecked": "2025-11-03T10:23:21.895Z",
+      "method": "http"
+    },
+    {
+      "id": "svc-1761676217071",
+      "name": "WADPH-PC",
+      "openUrl": "https://remotedesktop.google.com/access",
+      "checkUrl": "192.168.100.3",
+      "method": "ping",
+      "notes": "—\nIP: 192.168.100.7\nWADPH-PC Status",
+      "lastStatus": "DOWN",
+      "lastChecked": "2025-11-03T10:23:23.961Z"
+    }
+  ],
+  "links": [
+    {
+      "id": "link-1761591376454",
+      "title": "PitWeb",
+      "url": "https://pitonstan.top",
+      "icon": "🕸️",
+      "notes": ""
+    },
+    {
+      "id": "link-1761591416919",
+      "title": "PitonTV",
+      "url": "https://tv.pitonstan.top",
+      "icon": "📰",
+      "notes": ""
+    },
+    {
+      "id": "link-1761591475427",
+      "title": "Pitonstan Government",
+      "url": "https://gov.pitonstan.top",
+      "icon": "🏢",
+      "notes": ""
+    },
+    {
+      "id": "link-1761591516562",
+      "title": "Piton Airlines",
+      "url": "https://airlines.pitonstan.top",
+      "icon": "✈️",
+      "notes": ""
+    },
+    {
+      "id": "link-1761591590417",
+      "title": "PitonShop",
+      "url": "https://shop.pitonstan.top",
+      "icon": "🛒",
+      "notes": ""
+    },
+    {
+      "id": "link-1761591555804",
+      "title": "PitBank",
+      "url": "https://bank.pitonstan.top",
+      "icon": "🏦",
+      "notes": ""
+    },
+    {
+      "id": "link-1761677672324",
+      "title": "Drawio",
+      "url": "https://app.diagrams.net",
+      "icon": "🗺️",
+      "notes": "Powerfull Tool For Scheme Creation"
+    }
+  ],
+  "wol": [
+    {
+      "id": "wol-1761672962325",
+      "name": "ProxmoxVE",
+      "host": "192.168.100.6",
+      "user": "admin",
+      "pass": "A0773565292a!",
+      "scriptId": "1",
+      "notes": "Start ProxmoxVE Server Via MikroTik script",
+      "lastRun": "2025-11-02T14:59:43.785Z",
+      "lastResult": "ok"
+    },
+    {
+      "id": "wol-1761675204476",
+      "name": "WADPH-PC",
+      "host": "192.168.100.6",
+      "user": "admin",
+      "pass": "A0773565292a!",
+      "scriptId": "3",
+      "notes": "Start Home PC Via MikroTik script",
+      "lastRun": null,
+      "lastResult": "never"
+    }
+  ]
+}
