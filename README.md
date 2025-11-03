@@ -25,12 +25,12 @@
 ├── LICENSE
 ├── README.md
 ├── backend
-│   ├── data.json    #<— wadboard Date Base file, like your custom services, quick links ans etc...
-│   ├── package-lock.json    #<— Versions
-│   ├── package.json    #<— Versions
-│   └── server.js #    <—main backend file, checking services status, sending WoL and etc...
+│   ├── data.json          #<— wadboard Date Base file, like your custom services, quick links ans etc...
+│   ├── package-lock.json  #<— Versions
+│   ├── package.json       #<— Versions
+│   └── server.js          #<—main backend file, checking services status, sending WoL and etc...
 └── frontend
-    └── index.html     #<— frontend file (css/js included)
+    └── index.html         #<— frontend file (css/js included)
 
 3 directories, 7 files
 ```
