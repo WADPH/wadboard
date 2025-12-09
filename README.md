@@ -59,7 +59,7 @@ nginx.conf
 
     # Wadboard (frontend + API proxy)
     server {
-        listen 8001;
+        listen 80;
         server_name <your_domain>.com;
         root /path/to/wadboard/frontend;
         index index.html;
